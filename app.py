@@ -104,7 +104,7 @@ if submitted:
 
             # Write back to your specific tab
             conn.update(
-                worksheet="TheChilledSistersPodcasts", data=updated_data
+                worksheet="TheChilledSistersPodcast", data=updated_data
             )
 
             st.success(
