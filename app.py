@@ -87,16 +87,20 @@ if submitted:
                 ]
             )
 
-            # Read existing sheet data (ttl=0 avoids stale cache)
-            existing_data = conn.read(worksheet="Sheet1", ttl=0)
+            # Read existing sheet data explicitly from your tab
+            existing_data = conn.read(
+                worksheet="TheChilledSistersPodcasts", ttl=0
+            )
 
-            # Append new submission
+            # Append new row
             updated_data = pd.concat(
                 [existing_data, new_data], ignore_index=True
             )
 
-            # Force update back to Sheet1
-            conn.update(worksheet="Sheet1", data=updated_data)
+            # Write back to your specific tab
+            conn.update(
+                worksheet="TheChilledSistersPodcasts", data=updated_data
+            )
 
             st.success(
                 f"Thank you {listener_name}! Your submission has been logged for the host."
@@ -105,45 +109,3 @@ if submitted:
 
         except Exception as e:
             st.error(f"Error saving to Google Sheets: {e}")
-    if not listener_name.strip() or not feedback_text.strip():
-        st.warning("Please provide your name and a comment before submitting.")
-    else:
-        try:
-            # Establish connection to Google Sheets
-            conn = st.connection("gsheets", type=GSheetsConnection)
-
-            # Create new row dataframe
-            new_data = pd.DataFrame(
-                [
-                    {
-                        "Timestamp": datetime.now().strftime(
-                            "%Y-%m-%d %H:%M:%S"
-                        ),
-                        "Name": listener_name.strip(),
-                        "Location": listener_location.strip(),
-                        "Rating": rating,
-                        "Poll_Answer": poll_answer,
-                        "Feedback_Question": feedback_text.strip(),
-                    }
-                ]
-            )
-
-            # Fetch existing entries and concatenate
-            existing_data = conn.read(ttl=0)
-            updated_data = pd.concat(
-                [existing_data, new_data], ignore_index=True
-            )
-
-            # Update Google Sheet
-            conn.update(data=updated_data)
-
-            st.success(
-                f"Thank you {listener_name}! Your submission has been logged for the host."
-            )
-            st.balloons()
-
-        except Exception as e:
-            # Fallback message
-            st.success(
-                "Submission received! Tune in next Friday to see if your comment is featured!"
-            )
