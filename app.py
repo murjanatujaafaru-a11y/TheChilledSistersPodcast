@@ -64,7 +64,47 @@ with st.form("listener_feedback_form"):
     submitted = st.form_submit_button("🚀 Submit to Podcast Host")
 
 # --- 4. PROCESSING SUBMISSION & GOOGLE SHEETS LOGGING ---
+
 if submitted:
+    if not listener_name or not feedback_text:
+        st.warning("Please provide your name and a comment before submitting.")
+    else:
+        try:
+            conn = st.connection("gsheets", type=GSheetsConnection)
+
+            new_data = pd.DataFrame(
+                [
+                    {
+                        "Timestamp": datetime.now().strftime(
+                            "%Y-%m-%d %H:%M:%S"
+                        ),
+                        "Name": listener_name.strip(),
+                        "Location": listener_location.strip(),
+                        "Rating": rating,
+                        "Poll_Answer": poll_answer,
+                        "Feedback_Question": feedback_text.strip(),
+                    }
+                ]
+            )
+
+            # Read existing sheet data (ttl=0 avoids stale cache)
+            existing_data = conn.read(worksheet="Sheet1", ttl=0)
+
+            # Append new submission
+            updated_data = pd.concat(
+                [existing_data, new_data], ignore_index=True
+            )
+
+            # Force update back to Sheet1
+            conn.update(worksheet="Sheet1", data=updated_data)
+
+            st.success(
+                f"Thank you {listener_name}! Your submission has been logged for the host."
+            )
+            st.balloons()
+
+        except Exception as e:
+            st.error(f"Error saving to Google Sheets: {e}")
     if not listener_name.strip() or not feedback_text.strip():
         st.warning("Please provide your name and a comment before submitting.")
     else:
