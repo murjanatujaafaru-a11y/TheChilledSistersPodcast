@@ -5,7 +5,7 @@ from streamlit_gsheets import GSheetsConnection
 
 # Page Setup
 st.set_page_config(
-    page_title="The Friday Podcast Hub", page_icon="🎙️", layout="centered"
+    page_title="The Chilled Sister's Podcast", page_icon="🎙️", layout="centered"
 )
 
 st.title("🎙️ The Chilled Sister's Podcast")
@@ -17,7 +17,7 @@ st.divider()
 
 # 1. Latest Episode Section
 st.header("🎧 This Week's Episode")
-st.subheader("Episode 42: Building E-Commerce Brands with AI")
+st.subheader("Episode 117: when did you realize you can never marry him?")
 
 # Embed Audio Player (Spotify / Apple Podcast / MP3 link)
 st.audio("https://content.rss.com/episodes/223625/3164519/thechilledsisters/2026_09_18_13_53_06_6f734125-3f0e-499a-b54f-5af1b94dedb6.mp3")
@@ -46,8 +46,8 @@ with st.form("listener_feedback_form"):
     rating = st.slider("Rate today's episode topic:", 1, 5, 5)
 
     poll_answer = st.radio(
-        "Weekly Poll: Will you be implementing AI tools in your business this year?",
-        ["Yes, definitely!", "I'm currently exploring it", "Not yet"],
+        "Weekly Poll: Did you enjoy this week's episode?",
+        ["Yes, definitely!", "Not really", "I have mixed feelings", "I didn't listen yet"],
     )
 
     feedback_text = st.text_area(
