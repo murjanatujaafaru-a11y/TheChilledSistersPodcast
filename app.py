@@ -20,7 +20,7 @@ st.header("🎧 This Week's Episode")
 st.subheader("Episode 42: Building E-Commerce Brands with AI")
 
 # Embed Audio Player (Spotify / Apple Podcast / MP3 link)
-st.audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3")
+st.audio("https://content.rss.com/episodes/223625/3164519/thechilledsisters/2026_09_18_13_53_06_6f734125-3f0e-499a-b54f-5af1b94dedb6.mp3")
 
 with st.expander("📝 View AI Key Takeaways & Timestamps"):
     st.markdown(
