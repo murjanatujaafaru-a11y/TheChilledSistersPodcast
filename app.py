@@ -70,7 +70,12 @@ if submitted:
         st.warning("Please provide your name and a comment before submitting.")
     else:
         try:
-            conn = st.connection("gsheets", type=GSheetsConnection)
+            # Explicitly pass the spreadsheet URL directly in st.connection
+            conn = st.connection(
+                "gsheets",
+                type=GSheetsConnection,
+                spreadsheet="PASTE_YOUR_GOOGLE_SHEET_URL_HERE",
+            )
 
             new_data = pd.DataFrame(
                 [
