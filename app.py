@@ -8,7 +8,7 @@ st.set_page_config(
     page_title="The Friday Podcast Hub", page_icon="🎙️", layout="centered"
 )
 
-st.title("🎙️ The Friday Podcast Companion")
+st.title("🎙️ The Chilled Sister's Podcast")
 st.caption(
     "New episodes every Friday! Listen, share your thoughts, and get featured on air."
 )
