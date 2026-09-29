@@ -24,7 +24,7 @@ st.audio(
     "https://content.rss.com/episodes/223625/3164519/thechilledsisters/2026_09_18_13_53_06_6f734125-3f0e-499a-b54f-5af1b94dedb6.mp3"
 )
 
-with st.expander("📝 View AI Key Takeaways & Timestamps"):
+with st.expander("📝 View this week's Takeaways & Timestamps"):
     st.markdown(
         """
     - **02:15** — Introduction to online brand positioning
@@ -74,7 +74,7 @@ if submitted:
             conn = st.connection("gsheets", type=GSheetsConnection)
 
             # Store spreadsheet URL variable
-            sheet_url = "PASTE_YOUR_GOOGLE_SHEET_URL_HERE"
+            sheet_url = "https://docs.google.com/spreadsheets/d/1SPzsveh9wzyeL-EC8fS4n7TfQQ3BHf6w_e2rs4KtXBQ/edit?usp=sharing"
 
             new_data = pd.DataFrame(
                 [
@@ -94,7 +94,7 @@ if submitted:
             # 2. Pass spreadsheet URL into conn.read()
             existing_data = conn.read(
                 spreadsheet=sheet_url,
-                worksheet="TheChilledSistersPodcasts",
+                worksheet="TheChilledSistersPodcast",
                 ttl=0,
             )
 
@@ -106,7 +106,7 @@ if submitted:
             # 4. Pass spreadsheet URL into conn.update() with matching worksheet name
             conn.update(
                 spreadsheet=sheet_url,
-                worksheet="TheChilledSistersPodcasts",
+                worksheet="TheChilledSistersPodcast",
                 data=updated_data,
             )
 
