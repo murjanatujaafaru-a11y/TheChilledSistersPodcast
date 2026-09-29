@@ -2,7 +2,6 @@ from datetime import datetime
 import pandas as pd
 import gspread
 import streamlit as st
-from streamlit_gsheets import GSheetsConnection
 
 # --- 1. PAGE SETUP ---
 st.set_page_config(
@@ -66,20 +65,23 @@ with st.form("listener_feedback_form"):
 
 # --- 4. PROCESSING SUBMISSION & GOOGLE SHEETS LOGGING ---
 
-
 if submitted:
     if not listener_name or not feedback_text:
         st.warning("Please provide your name and a comment before submitting.")
     else:
         try:
-            # Connect via gspread
-            gc = gspread.service_account(
-                filename=".streamlit/service_account.json"
-            )
-            sh = gc.open_by_url(
-                "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit"
-            )
-            worksheet = sh.worksheet("Sheet1")
+            # Build credentials dict from st.secrets
+            creds_dict = dict(st.secrets["connections"]["gsheets"])
+            
+            # Extract spreadsheet URL and clean dict for gspread auth
+            spreadsheet_url = creds_dict.pop("spreadsheet")
+            
+            # Authenticate via dictionary directly from secrets.toml
+            gc = gspread.service_account_from_dict(creds_dict)
+            sh = gc.open_by_url(spreadsheet_url)
+            
+            # Get the first sheet (Sheet1)
+            worksheet = sh.get_worksheet(0)
 
             # Append row directly
             worksheet.append_row(
