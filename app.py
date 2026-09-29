@@ -108,4 +108,5 @@ if submitted:
             st.balloons()
 
         except Exception as e:
-            st.error(f"Error saving to Google Sheets: {e}")
+            st.error("Error saving to Google Sheets:")
+            st.exception(e)
