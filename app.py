@@ -65,17 +65,16 @@ with st.form("listener_feedback_form"):
 
 # --- 4. PROCESSING SUBMISSION & GOOGLE SHEETS LOGGING ---
 
+
 if submitted:
     if not listener_name or not feedback_text:
         st.warning("Please provide your name and a comment before submitting.")
     else:
         try:
-            # 1. Initialize connection without passing 'spreadsheet' directly here
+            # Connect using your secrets.toml
             conn = st.connection("gsheets", type=GSheetsConnection)
 
-            # Store spreadsheet URL variable
-            sheet_url = "https://docs.google.com/spreadsheets/d/1SPzsveh9wzyeL-EC8fS4n7TfQQ3BHf6w_e2rs4KtXBQ/edit?usp=sharing"
-
+            # Create new row DataFrame
             new_data = pd.DataFrame(
                 [
                     {
@@ -91,24 +90,16 @@ if submitted:
                 ]
             )
 
-            # 2. Pass spreadsheet URL into conn.read()
-            existing_data = conn.read(
-                spreadsheet=sheet_url,
-                worksheet="TheChilledSistersPodcast",
-                ttl=0,
-            )
+            # Read existing data from Sheet1
+            existing_data = conn.read(worksheet="Sheet1", ttl=0)
 
-            # 3. Append new row
+            # Combine old and new data
             updated_data = pd.concat(
                 [existing_data, new_data], ignore_index=True
             )
 
-            # 4. Pass spreadsheet URL into conn.update() with matching worksheet name
-            conn.update(
-                spreadsheet=sheet_url,
-                worksheet="TheChilledSistersPodcast",
-                data=updated_data,
-            )
+            # Update Google Sheet
+            conn.update(worksheet="Sheet1", data=updated_data)
 
             st.success(
                 f"Thank you {listener_name}! Your submission has been logged for the host."
