@@ -70,20 +70,20 @@ if submitted:
         st.warning("Please provide your name and a comment before submitting.")
     else:
         try:
-            # Build credentials dict from st.secrets
-            creds_dict = dict(st.secrets["connections"]["gsheets"])
+            # 1. Fetch credentials block from st.secrets
+            secrets_data = st.secrets["connections"]["gsheets"]
             
-            # Extract spreadsheet URL and clean dict for gspread auth
-            spreadsheet_url = creds_dict.pop("spreadsheet")
+            # 2. Extract spreadsheet URL
+            spreadsheet_url = secrets_data["spreadsheet"]
             
-            # Authenticate via dictionary directly from secrets.toml
+            # 3. Create a clean dictionary for gspread auth (excluding 'spreadsheet')
+            creds_dict = {k: v for k, v in secrets_data.items() if k != "spreadsheet"}
+            
+            # 4. Authenticate and append row
             gc = gspread.service_account_from_dict(creds_dict)
             sh = gc.open_by_url(spreadsheet_url)
-            
-            # Get the first sheet (Sheet1)
             worksheet = sh.get_worksheet(0)
 
-            # Append row directly
             worksheet.append_row(
                 [
                     datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -95,6 +95,13 @@ if submitted:
                 ]
             )
 
+            st.success(
+                f"Thank you {listener_name}! Your submission has been logged for the host."
+            )
+            st.balloons()
+
+        except Exception as e:
+            st.error(f"Error saving to Google Sheets: {e}")
             st.success(
                 f"Thank you {listener_name}! Your submission has been logged for the host."
             )
