@@ -70,12 +70,11 @@ if submitted:
         st.warning("Please provide your name and a comment before submitting.")
     else:
         try:
-            # Explicitly pass the spreadsheet URL directly in st.connection
-            conn = st.connection(
-                "gsheets",
-                type=GSheetsConnection,
-                spreadsheet="PASTE_YOUR_GOOGLE_SHEET_URL_HERE",
-            )
+            # 1. Initialize connection without passing 'spreadsheet' directly here
+            conn = st.connection("gsheets", type=GSheetsConnection)
+
+            # Store spreadsheet URL variable
+            sheet_url = "PASTE_YOUR_GOOGLE_SHEET_URL_HERE"
 
             new_data = pd.DataFrame(
                 [
@@ -92,19 +91,23 @@ if submitted:
                 ]
             )
 
-            # Read existing sheet data explicitly from your tab
+            # 2. Pass spreadsheet URL into conn.read()
             existing_data = conn.read(
-                worksheet="TheChilledSistersPodcasts", ttl=0
+                spreadsheet=sheet_url,
+                worksheet="TheChilledSistersPodcasts",
+                ttl=0,
             )
 
-            # Append new row
+            # 3. Append new row
             updated_data = pd.concat(
                 [existing_data, new_data], ignore_index=True
             )
 
-            # Write back to your specific tab
+            # 4. Pass spreadsheet URL into conn.update() with matching worksheet name
             conn.update(
-                worksheet="TheChilledSistersPodcast", data=updated_data
+                spreadsheet=sheet_url,
+                worksheet="TheChilledSistersPodcasts",
+                data=updated_data,
             )
 
             st.success(
