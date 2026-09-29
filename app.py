@@ -1,5 +1,6 @@
 from datetime import datetime
 import pandas as pd
+import gspread
 import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 
@@ -71,35 +72,26 @@ if submitted:
         st.warning("Please provide your name and a comment before submitting.")
     else:
         try:
-            # Connect using your secrets.toml
-            conn = st.connection("gsheets", type=GSheetsConnection)
+            # Connect via gspread
+            gc = gspread.service_account(
+                filename=".streamlit/service_account.json"
+            )
+            sh = gc.open_by_url(
+                "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit"
+            )
+            worksheet = sh.worksheet("Sheet1")
 
-            # Create new row DataFrame
-            new_data = pd.DataFrame(
+            # Append row directly
+            worksheet.append_row(
                 [
-                    {
-                        "Timestamp": datetime.now().strftime(
-                            "%Y-%m-%d %H:%M:%S"
-                        ),
-                        "Name": listener_name.strip(),
-                        "Location": listener_location.strip(),
-                        "Rating": rating,
-                        "Poll_Answer": poll_answer,
-                        "Feedback_Question": feedback_text.strip(),
-                    }
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    listener_name.strip(),
+                    listener_location.strip(),
+                    rating,
+                    poll_answer,
+                    feedback_text.strip(),
                 ]
             )
-
-            # Read existing data from Sheet1
-            existing_data = conn.read(worksheet="Sheet1", ttl=0)
-
-            # Combine old and new data
-            updated_data = pd.concat(
-                [existing_data, new_data], ignore_index=True
-            )
-
-            # Update Google Sheet
-            conn.update(worksheet="Sheet1", data=updated_data)
 
             st.success(
                 f"Thank you {listener_name}! Your submission has been logged for the host."
