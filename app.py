@@ -261,7 +261,7 @@ if submitted:
             "Feedback_Question": story_input if story_input.strip() else "N/A"
         }])
         
-        updated_df = pd.concat([existing_data, new_entry], ignore_index=True)
+        updated_df = pd.concat([existing_data, new_entry], ignore_ignore_index=True) if hasattr(pd.concat, 'ignore_ignore_index') else pd.concat([existing_data, new_entry], ignore_index=True)
         conn.update(worksheet="Sheet1", data=updated_df)
         
         st.success("💛 Thank you for tuning in and sharing your thoughts!")
@@ -271,7 +271,7 @@ if submitted:
         st.error("Could not save your response right now. Please try again later!")
 
 # -------------------------------------------------------------
-# 5. NEWSLETTER SUBSCRIPTION FOOTER
+# 5. NEWSLETTER SUBSCRIPTION FOOTER (UPDATED WITH GSHEETS)
 # -------------------------------------------------------------
 st.divider()
 st.subheader("💌 Join The Chilled Sisters Squad")
@@ -285,6 +285,28 @@ with col_email2:
 
 if sub_btn:
     if email_sub and "@" in email_sub:
-        st.success("🎉 You're subscribed! Welcome to the family.")
+        try:
+            # Read existing sheet data
+            existing_data = conn.read(worksheet="Sheet1", ttl=0)
+            
+            # Create new subscriber row
+            new_sub = pd.DataFrame([{
+                "Timestamp": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "Name": "Newsletter Subscriber",
+                "Location": "N/A",
+                "Rating": "N/A",
+                "Poll_Answer": "N/A",
+                "Feedback_Question": f"Subscribed Email: {email_sub}"
+            }])
+            
+            # Append and update Google Sheet
+            updated_df = pd.concat([existing_data, new_sub], ignore_index=True)
+            conn.update(worksheet="Sheet1", data=updated_df)
+            
+            st.success("🎉 You're subscribed! Welcome to the family.")
+            st.balloons()
+            
+        except Exception as e:
+            st.error("Could not save your subscription right now. Please try again!")
     else:
         st.warning("Please enter a valid email address.")
