@@ -143,16 +143,26 @@ except Exception:
 st.divider()
 
 # -------------------------------------------------------------
-# 2. ANONYMOUS STORY & CONFESSION BOX
+# 2. EPISODE RATING & ANONYMOUS STORY / CONFESSION BOX
 # -------------------------------------------------------------
-st.subheader("📬 Share Your Story or Confession")
+st.subheader("📬 Rate This Episode & Share Your Story")
 st.write(
-    "Got a personal experience, dilemma, or secret story you want us to read on the podcast? "
-    "Drop it below! You can stay 100% anonymous."
+    "Let us know what you thought of today's episode! You can also share a personal story, "
+    "relationship dilemma, or secret confession for us to read on air."
 )
 
-with st.form("listener_story_form", clear_on_submit=True):
-    is_anonymous = st.checkbox("🕵️ Submit as Anonymous Listener", value=True)
+with st.form("listener_feedback_form", clear_on_submit=True):
+    # Episode Rating System
+    rating = st.select_slider(
+        "⭐ How would you rate this episode?",
+        options=["⭐ 1 - Needs Work", "⭐⭐ 2 - Fair", "⭐⭐⭐ 3 - Good", "⭐⭐⭐⭐ 4 - Great!", "⭐⭐⭐⭐⭐ 5 - Amazing!"],
+        value="⭐⭐⭐⭐⭐ 5 - Amazing!"
+    )
+    
+    st.markdown("---")
+    
+    # Anonymity Option
+    is_anonymous = st.checkbox("🕵️ Submit anonymously", value=True)
     
     if not is_anonymous:
         col1, col2 = st.columns(2)
@@ -164,40 +174,39 @@ with st.form("listener_story_form", clear_on_submit=True):
         name = "Anonymous Listener"
         location = "Confidential"
 
-    rating = st.select_slider("How would you rate this episode?", options=[1, 2, 3, 4, 5], value=5)
-    
+    # Story & Confession Input Box
     story_input = st.text_area(
-        "Your Story / Message for the Hosts",
-        placeholder="Write your story or confession here... We might read and discuss it on air!",
+        "Your Story, Confession, or Personal Question for the Hosts",
+        placeholder="Type your story, thoughts on the episode, or a situation you want us to talk about...",
         height=160
     )
     
-    submitted = st.form_submit_button("✨ Send Story to The Chilled Sisters")
+    submitted = st.form_submit_button("✨ Submit Rating & Story")
 
 # -------------------------------------------------------------
 # 3. SAVE SUBMISSION TO GOOGLE SHEETS
 # -------------------------------------------------------------
 if submitted:
-    if not story_input.strip():
-        st.error("Please enter a story or message before submitting.")
-    else:
-        try:
-            existing_data = conn.read(worksheet="Sheet1", ttl=0)
-            
-            new_entry = pd.DataFrame([{
-                "Timestamp": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "Name": name,
-                "Location": location,
-                "Rating": rating,
-                "Poll_Answer": "Story Submission",
-                "Feedback_Question": story_input
-            }])
-            
-            updated_df = pd.concat([existing_data, new_entry], ignore_index=True)
-            conn.update(worksheet="Sheet1", data=updated_df)
-            
-            st.success("💜 Your story has been sent anonymously! Thank you for sharing with us.")
-            st.balloons()
-            
-        except Exception as e:
-            st.error("Could not save your response right now. Please try again later!")
+    try:
+        existing_data = conn.read(worksheet="Sheet1", ttl=0)
+        
+        # Clean up rating value for clean dataset recording (e.g., "5")
+        numeric_rating = rating.split(" ")[0].count("⭐")
+        
+        new_entry = pd.DataFrame([{
+            "Timestamp": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "Name": name,
+            "Location": location,
+            "Rating": numeric_rating,
+            "Poll_Answer": "Episode Review & Story",
+            "Feedback_Question": story_input
+        }])
+        
+        updated_df = pd.concat([existing_data, new_entry], ignore_index=True)
+        conn.update(worksheet="Sheet1", data=updated_df)
+        
+        st.success("💜 Thank you! Your rating and story have been recorded.")
+        st.balloons()
+        
+    except Exception as e:
+        st.error("Could not save your feedback right now. Please try again later!")
